@@ -1,18 +1,23 @@
 const express = require("express");
 const app = express();
+const bodyParser = require("body-parser");
+const path = require("path");
 
 // console.log(teachers);
 
 // Handlebars Setup
 const { engine } = require("express-handlebars");
-const projectsList = require("./projects.json");
 
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 // End of setup
 
-app.use(express.static("./public"));
+const urlEncodedMiddleware = express.urlencoded({ extended: false });
+app.use(urlEncodedMiddleware);
+
 app.use(express.static("./src"));
+app.use(express.static("./views"));
+app.use(express.static("../public"));
 
 app.get("/petition", (req, res) => {
     res.render("petition", {
@@ -22,14 +27,33 @@ app.get("/petition", (req, res) => {
         layout: "main",
         // projects: projectsList,
         // showImage: true,
-        // helpers: {
-        //     getnewstyle: "/style.css",
-        // },
+        helpers: {
+            drawCanvasScript: "canvasDraw.js",
+            formStyles: "formStyles.css",
+        },
     });
 });
 
+app.post("/petition", (req, res) => {
+    // return new Promise ((resolve, reject)=> {
+
+    // captureCanvas().then((signature) => {
+    console.log(
+        "POST Request Body",
+        req.body.firstName,
+        req.body.lastName,
+        req.body.signature
+    );
+    res.redirect("/thanks");
+    // });
+
+    // })
+
+    // Save first name, last name, and signature to Postgres SQL table
+});
+
 app.get("/signers", (req, res) => {
-    res.render("petition", {
+    res.render("signers", {
         //whatever you specify here,
         // it will be used as a body in the main.handlebars!
         // (i.e. home.handlebars)
@@ -43,7 +67,7 @@ app.get("/signers", (req, res) => {
 });
 
 app.get("/thanks", (req, res) => {
-    res.render("petition", {
+    res.render("thanks", {
         //whatever you specify here,
         // it will be used as a body in the main.handlebars!
         // (i.e. home.handlebars)
