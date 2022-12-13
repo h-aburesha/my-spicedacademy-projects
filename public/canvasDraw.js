@@ -1,7 +1,9 @@
+const canvas = document.getElementById("signature-canvas");
+const ctx = canvas.getContext("2d");
+const sigSelector = document.getElementById("input-sig");
+
 function canvasDraw() {
     return new Promise((resolve, reject) => {
-        const canvas = document.getElementById("signature-canvas");
-        const ctx = canvas.getContext("2d");
         let isDrawing = false;
         let lastX = 0;
         let lastY = 0;
@@ -27,7 +29,7 @@ function canvasDraw() {
         canvas.addEventListener("mouseup", (event) => {
             isDrawing = false;
             const signature = canvas.toDataURL();
-            document.querySelector('input[name="signature"]').value = signature;
+            sigSelector.value = signature;
             resolve(signature);
         });
     });
