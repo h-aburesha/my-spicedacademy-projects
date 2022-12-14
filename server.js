@@ -8,9 +8,7 @@ const cookieSession = require("cookie-session");
 
 // Handlebars Setup
 const { engine } = require("express-handlebars");
-const { decodeBase64 } = require("bcryptjs");
-const { resolve } = require("path");
-const { json } = require("express");
+const encrypt = require("./encrypt");
 
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -31,6 +29,33 @@ app.use(
 
 app.get("/register", (req, res) => {
     res.render("register", {
+        layout: "main",
+        helpers: {
+            formStyles: "registerStyles.css",
+            favicon: "favicon.ico",
+        },
+    });
+});
+
+app.post("/register", (req, res) => {
+    // console.log(req.body);
+    const { firstName, lastName, email, password } = req.body;
+    encrypt
+        .hash(password)
+        .then((hashedPWD) => {
+            return db.addUserData(firstName, lastName, email, hashedPWD);
+        })
+        .then(({ rows }) => {
+            const signatureRowId = rows[0].id;
+            req.session.signerID = signatureRowId;
+            console.log("req.session.signerID", req.session.signerID);
+            res.redirect("/profile");
+        })
+        .catch((err) => console.log("error in addUserData: ", err));
+});
+
+app.get("/profile", (req, res) => {
+    res.render("profile", {
         //whatever you specify here,
         // it will be used as a body in the main.handlebars!
         // (i.e. home.handlebars)
@@ -38,10 +63,40 @@ app.get("/register", (req, res) => {
         // projects: projectsList,
         // showImage: true,
         helpers: {
-            formStyles: "registerStyles.css",
+            formStyles: "profileStyles.css",
             favicon: "favicon.ico",
         },
     });
+    //
+});
+
+app.post("/profile", (req, res) => {
+    const { age, city, homepage } = req.body;
+    db.addProfiles(age, city, homepage);
+});
+
+app.get("/login", (req, res) => {
+    res.render("login", {
+        //whatever you specify here,
+        // it will be used as a body in the main.handlebars!
+        // (i.e. home.handlebars)
+        layout: "main",
+        // projects: projectsList,
+        // showImage: true,
+        helpers: {
+            formStyles: "loginStyles.css",
+            favicon: "favicon.ico",
+        },
+    });
+    //
+});
+
+app.post("/login", (req, res) => {
+    // First check by the email if the user exists in your Database
+    // If he/she exists then compare if the password matches
+    // Go to the Signatures Table to see if this user already signed
+    // If the user has signed already redirect to Thanks Page
+    // Otherwise redirect to Signature Page
 });
 
 app.get("/petition", (req, res) => {
@@ -63,9 +118,9 @@ app.get("/petition", (req, res) => {
 app.post("/petition", (req, res) => {
     // console.log(req.body);
 
-    const { firstName, lastName, signature } = req.body;
+    const { signature, user_id } = req.body;
 
-    db.addSignature(firstName, lastName, signature)
+    db.addSignature(signature, user_id)
         .then(({ rows }) => {
             const signatureRowId = rows[0].id;
             req.session.signerID = signatureRowId;
@@ -115,4 +170,4 @@ app.get("/thanks", (req, res) => {
     }
 });
 
-app.listen(3000, console.log("running at 3000"));
+app.listen(process.env.PORT || 3000, console.log("running at 3000"));

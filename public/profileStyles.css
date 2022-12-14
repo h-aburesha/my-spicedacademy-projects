@@ -40,23 +40,23 @@ form input {
 
 .petition {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     height: 100vh;
     padding: 1em;
     box-sizing: border-box;
     color: white;
-    background: url("/naja-bertolt-jensen-oxntvdNJb9o-unsplash.jpg") center
-        center no-repeat;
+    background: url(/naja-bertolt-jensen-oxntvdNJb9o-unsplash.jpg) center center
+        no-repeat;
     opacity: 90%;
     background-size: cover;
     align-items: center;
-    justify-content: space-around;
+    justify-content: center;
 }
 
 .petition-title {
     max-width: 16em;
     margin: 10px 10px;
-    font-size: 10vh;
+    font-size: 5vh;
     font-weight: bold;
     line-height: 1;
     color: white;

@@ -11,26 +11,26 @@ module.exports.getSigImg = (dbSigID) => {
     ]);
 };
 
-module.exports.addSignature = (firstName, lastName, signature) => {
+module.exports.addUserData = (firstName, lastName, email, password) => {
     return db.query(
-        `INSERT INTO signatures (firstname, lastname, signature) 
-      VALUES ($1, $2, $3) RETURNING id`,
-        [firstName, lastName, signature]
+        `INSERT INTO users (firstname, lastname, email, password) 
+      VALUES ($1, $2, $3, $4) RETURNING id`,
+        [firstName, lastName, email, password]
     );
 };
 
-// create the following functions:
-//  - getAllSignatures - use db.query to get all signatures from table signatures
-//  - addSignature - use db.query to insert a signature to table signatures
-// Don't forget to export the functions with module.exports
+module.exports.addProfiles = (city, age, homepage) => {
+    return db.query(
+        `INSERT INTO users (city, age, homepage) 
+      VALUES ($1, $2, $3, $4)`,
+        [city, age, homepage]
+    );
+};
 
-/*
-// Get the data URL from the database
-var dataUrl = "<your data URL here>";
-
-// Convert the data URL to an image
-var image = dataUrlToImage(dataUrl);
-
-// Set the src attribute of the <img> tag to the src attribute of the image object
-document.getElementById("my-image").src = image.src;
-*/
+module.exports.addSignature = (signature, user_id) => {
+    return db.query(
+        `INSERT INTO signatures (signature, user_id) 
+      VALUES ($1, $2)`,
+        [signature, user_id]
+    );
+};
