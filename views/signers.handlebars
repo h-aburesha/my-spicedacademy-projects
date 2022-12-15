@@ -1,5 +1,16 @@
-<ul>
-    <li>Signed1</li>
-    <li>Signed2</li>
-    <li>Signed3</li>
-</ul>
+<section class="petition">
+    <header class="petition-header">
+        <h1 class="petition-title">Those Also Signed!</h1>
+    </header>
+
+    <footer class="petition-footer">
+        {{#signers}}
+            <ul>
+                <li><a href="{{homepage}}"> {{firstname}} {{lastname}} </a>
+                    {{city}}
+                    {{age}}
+                </li>
+            </ul>
+        {{/signers}}
+    </footer>
+</section>
