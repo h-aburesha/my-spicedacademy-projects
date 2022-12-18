@@ -5,12 +5,28 @@
 
     <footer class="petition-footer">
         {{#signers}}
-            <ul>
-                <li><a href="{{homepage}}"> {{firstname}} {{lastname}} </a>
-                    {{city}}
-                    {{age}}
-                </li>
-            </ul>
+            {{#if city}}
+                {{!-- {{#signers}} --}}
+                <ul>
+                    <li><a href="{{homepage}}">{{firstname}} {{lastname}}</a>
+                        Age:
+                        {{age}}
+                        City:
+                        <a href="/signers/{{city}}">{{city}} </a></li>
+                </ul>
+                {{!-- {{/signers}} --}}
+            {{/if}}
         {{/signers}}
     </footer>
+
 </section>
+
+{{!-- {{#signers}}
+        <ul>
+            <li><a href="{{homepage}}"> {{firstname}} {{lastname}} </a>
+                <br />
+                <a href="signers/{{city}}"> {{city}} </a>
+                {{age}}
+            </li>
+        </ul>
+    {{/signers}} --}}

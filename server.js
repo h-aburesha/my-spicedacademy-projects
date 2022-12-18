@@ -3,10 +3,18 @@ const app = express();
 const path = require("path");
 const db = require("./db");
 const cookieSession = require("cookie-session");
+
 const { engine } = require("express-handlebars");
-const encrypt = require("./encrypt");
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
+const encrypt = require("./encrypt");
+
+const Handlebars = require("handlebars");
+
+Handlebars.registerHelper("loud", function (string) {
+    return string.toUpperCase();
+});
+
 const urlEncodedMiddleware = express.urlencoded({ extended: false });
 app.use(urlEncodedMiddleware);
 app.use(express.static("./views"));
@@ -40,6 +48,7 @@ app.post("/register", (req, res) => {
         })
         .then(({ rows }) => {
             req.session.user_id = rows[0].id;
+
             res.redirect("/profile");
         })
         .catch((err) => console.log("error in addUserData: ", err));
@@ -85,7 +94,7 @@ app.post("/login", (req, res) => {
                 .compare(loginPassword, rows[0].password)
                 .then((passedTest) => {
                     if (passedTest) {
-                        res.redirect("/thanks");
+                        res.redirect("/thanks"); // CHECK PWD & SIG in DB(in {rows})
                         // console.log(
                         //     "passTest & Signed?",
                         //     passedTest,
@@ -134,7 +143,7 @@ app.post("/petition", (req, res) => {
     db.addSignature(signature, user_id)
         .then(() => {
             req.session.signed = true;
-            console.log("Booleab Signed?: ", req.session.signed);
+            // console.log("Booleab Signed?: ", req.session.signed);
             res.redirect("/thanks");
         })
         .catch((err) => console.log("err in addSignature: ", err));
@@ -142,10 +151,12 @@ app.post("/petition", (req, res) => {
 
 app.get("/signers", (req, res) => {
     // should also render the user with his signature (maybe also print certificate?)
+
     db.getUserDataAll().then(({ rows }) => {
         res.render("signers", {
             layout: "main",
             signers: rows,
+
             helpers: {
                 formStyles: "signersStyles.css",
                 favicon: "favicon.ico",
@@ -153,6 +164,41 @@ app.get("/signers", (req, res) => {
         });
     });
 });
+
+// app.get("/signers/:signerCity", (req, res) => {
+
+// db.getUserDataAll().then(({ rows }) => {
+//     const allCitiesArray = [];
+//     for (let i = 0; i < rows.length; i++) {
+//         city = rows[i].city;
+
+//         allCitiesArray.concat(allCitiesArray.push(city));
+//         console.log("city: ", allCitiesArray);
+//     }
+//     res.render("signers", {
+//         layout: "main",
+//         signers: rows,
+//         helpers: {
+//             formStyles: "signersStyles.css",
+//             favicon: "favicon.ico",
+//         },
+//     });
+// });
+//     console.log(selectedProject);
+//     if (selectedProject === undefined) {
+//         res.statusCode = 404;
+//         res.end("PAGE NOT FOUND");
+//     } else
+//         res.render("home", {
+//             layout: "main",
+//             projects: projectsList,
+//             showImage: false,
+//             selectedProject: selectedProject,
+//             helpers: {
+//                 getnewstyle: "/newstyle.css",
+//             },
+//         });
+// });
 
 app.get("/thanks", (req, res) => {
     if ((req.session.signed = true)) {
@@ -162,6 +208,34 @@ app.get("/thanks", (req, res) => {
     } else {
         res.redirect("/petition");
     }
+});
+
+app.get("/edit", (req, res) => {
+    // should also render the user with his signature (maybe also print certificate?)
+    db.getUserByID(req.session.user_id).then(({ rows }) => {
+        // console.log("rows", rows, req.session.user_id);
+        res.render("edit", {
+            layout: "main",
+            signers: rows,
+            helpers: {
+                formStyles: "editStyles.css",
+                favicon: "favicon.ico",
+            },
+        });
+    });
+});
+
+app.post("/edit", (req, res) => {
+    // should also render the user with his signature (maybe also print certificate?)
+    const id = req.session.user_id;
+    const { firstName, lastName, email, password, age, city, homepage } =
+        req.body;
+
+    db.editUsers(firstName, lastName, email, password, id);
+    db.editProfile(age, city, homepage, id).then(({ rows }) => {
+        // console.log("rows", req.session.user_id);
+        res.redirect("/edit");
+    });
 });
 
 app.listen(process.env.PORT || 3000, console.log(".🧨.🧨.🧨.🧨"));
