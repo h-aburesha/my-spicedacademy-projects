@@ -9,12 +9,6 @@ app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 const encrypt = require("./encrypt");
 
-const Handlebars = require("handlebars");
-
-Handlebars.registerHelper("loud", function (string) {
-    return string.toUpperCase();
-});
-
 const urlEncodedMiddleware = express.urlencoded({ extended: false });
 app.use(urlEncodedMiddleware);
 app.use(express.static("./views"));
