@@ -9,6 +9,12 @@ app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 const encrypt = require("./encrypt");
 
+const Handlebars = require("handlebars");
+
+Handlebars.registerHelper("loud", function (string) {
+    return string.toUpperCase();
+});
+
 const urlEncodedMiddleware = express.urlencoded({ extended: false });
 app.use(urlEncodedMiddleware);
 app.use(express.static("./views"));
@@ -122,7 +128,7 @@ app.get("/petition", (req, res) => {
         // showImage: true,
         helpers: {
             drawCanvasScript: "canvasDraw.js",
-            formStyles: "formStyles.css",
+            formStyles: "petitionStyles.css",
             favicon: "favicon.ico",
         },
     });
@@ -159,49 +165,33 @@ app.get("/signers", (req, res) => {
     });
 });
 
-// app.get("/signers/:signerCity", (req, res) => {
+app.get("/signers/:signerCity", (req, res) => {
+    const signersCity = req.params.signerCity;
+    db.getUserByCity(signersCity).then(({ rows }) =>
+        res.render("city", {
+            layout: "main",
+            cityArray: rows,
 
-// db.getUserDataAll().then(({ rows }) => {
-//     const allCitiesArray = [];
-//     for (let i = 0; i < rows.length; i++) {
-//         city = rows[i].city;
-
-//         allCitiesArray.concat(allCitiesArray.push(city));
-//         console.log("city: ", allCitiesArray);
-//     }
-//     res.render("signers", {
-//         layout: "main",
-//         signers: rows,
-//         helpers: {
-//             formStyles: "signersStyles.css",
-//             favicon: "favicon.ico",
-//         },
-//     });
-// });
-//     console.log(selectedProject);
-//     if (selectedProject === undefined) {
-//         res.statusCode = 404;
-//         res.end("PAGE NOT FOUND");
-//     } else
-//         res.render("home", {
-//             layout: "main",
-//             projects: projectsList,
-//             showImage: false,
-//             selectedProject: selectedProject,
-//             helpers: {
-//                 getnewstyle: "/newstyle.css",
-//             },
-//         });
-// });
+            helpers: {
+                favicon: "favicon.ico",
+            },
+        })
+    );
+});
 
 app.get("/thanks", (req, res) => {
-    if ((req.session.signed = true)) {
+    // should also render the user with his signature (maybe also print certificate?)
+    const user_id = req.session.user_id;
+    console.log("user_id: ", user_id);
+    db.getSigImg(user_id).then(({ rows }) => {
         res.render("thanks", {
             layout: "main",
+            sigArray: rows,
+            helpers: {
+                favicon: "favicon.ico",
+            },
         });
-    } else {
-        res.redirect("/petition");
-    }
+    });
 });
 
 app.get("/edit", (req, res) => {

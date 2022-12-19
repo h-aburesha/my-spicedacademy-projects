@@ -12,8 +12,8 @@ form {
     border-radius: 5px;
     border: 10px;
     padding: 10px;
-    background-color: #11181f;
-    opacity: 90%;
+    background-color: #ffffff;
+
     align-items: center;
 }
 
@@ -38,25 +38,29 @@ form input {
     font-size: 6vh;
 }
 
+#signature-canvas {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
 .petition {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 100vh;
     padding: 1em;
     box-sizing: border-box;
-    color: white;
-    background: url(/naja-bertolt-jensen-oxntvdNJb9o-unsplash.jpg) center center
-        no-repeat;
+    color: rgb(8, 8, 8);
+    background: url("/naja-bertolt-jensen-oxntvdNJb9o-unsplash.jpg") center
+        center no-repeat;
 
     background-size: cover;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
 }
 
 .petition-title {
     max-width: 16em;
     margin: 10px 10px;
-    font-size: 5vh;
+    font-size: 10vh;
     font-weight: bold;
     line-height: 1;
     color: white;

@@ -6,16 +6,9 @@ const db = spicedPg(
 );
 
 module.exports.getSigImg = (user_id) => {
-    return db.query(`SELECT signature FROM signatures WHERE id = $1;`, [
+    return db.query(`SELECT signature FROM signatures WHERE user_id = $1;`, [
         user_id,
     ]);
-};
-
-module.exports.getEmailandPassword = (loginEmail) => {
-    return db.query(
-        `SELECT email, password, signature FROM users FULL OUTER JOIN signatures ON users.id = signatures.user_id WHERE email = $1 `,
-        [loginEmail]
-    );
 };
 
 module.exports.getEmailandPassword = (loginEmail) => {
@@ -43,7 +36,7 @@ module.exports.getUserByID = (user_id) => {
 
 module.exports.getUserByCity = (city) => {
     return db.query(
-        `SELECT firstname, lastname, city FROM users FULL OUTER JOIN user_profile ON users.id = user_profiles.user_id WHERE city = $1 `,
+        `SELECT firstname, lastname, city FROM users FULL OUTER JOIN user_profiles ON users.id = user_profiles.user_id WHERE city = $1 `,
         [city]
     );
 };
