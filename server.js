@@ -48,10 +48,15 @@ app.post("/register", (req, res) => {
         })
         .then(({ rows }) => {
             req.session.user_id = rows[0].id;
-
             res.redirect("/profile");
         })
-        .catch((err) => console.log("error in addUserData: ", err));
+        .catch((error) => {
+            if (error.code === "23505") {
+                res.send(
+                    "<h1>email already exists<a href='/register'>Try Again</a></h1>"
+                );
+            }
+        });
 });
 
 app.get("/profile", (req, res) => {
