@@ -26,6 +26,10 @@ app.use(
     })
 );
 
+app.get("/", (req, res) => {
+    res.redirect("/register");
+});
+
 app.get("/register", (req, res) => {
     // SET FORM  USER: {} & IN THE HTML NAME IS FIRSTNAME & SET {{VALUE="PREDEFINED"}}
     res.render("register", {
