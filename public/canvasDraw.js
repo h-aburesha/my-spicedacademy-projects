@@ -2,6 +2,17 @@ const canvas = document.getElementById("signature-canvas");
 const ctx = canvas.getContext("2d");
 const sigSelector = document.getElementById("input-sig");
 
+// $(".delete-data").on("click", function (e) {
+//     e.preventDefault();
+//     $.ajax({
+//         type: "POST",
+//         url: "/thanks",
+//         success: function (response) {
+//             console.log(response);
+//         },
+//     });
+// });
+
 function canvasDraw() {
     return new Promise((resolve, reject) => {
         let isDrawing = false;

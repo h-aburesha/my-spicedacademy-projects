@@ -78,7 +78,7 @@ app.post("/profile", (req, res) => {
     const { age, city, homepage } = req.body;
 
     db.addProfiles(age, city, homepage, user_id).then(() =>
-        res.redirect("/signers")
+        res.redirect("/petition")
     );
 });
 
@@ -98,43 +98,31 @@ app.post("/login", (req, res) => {
 
     db.getEmailandPassword(loginEmail).then(({ rows }) => {
         if (rows[0]) {
-            console.log("getbyEmail:", rows[0]);
+            req.session.user_id = rows[0].id;
+            console.log("getbyEmail:", req.session.user_id);
             encrypt
                 .compare(loginPassword, rows[0].password)
                 .then((passedTest) => {
                     if (passedTest) {
-                        res.redirect("/thanks"); // CHECK PWD & SIG in DB(in {rows})
-                        // console.log(
-                        //     "passTest & Signed?",
-                        //     passedTest,
-                        //     req.session.signed
-                        // );
-                        // if(signed)
-                        // res.redirect("/thanks");
+                        res.redirect("/petition");
                     } else {
-                        res.redirect("/login");
+                        res.send({ messa });
+                        // res.send(
+                        //     "<h1>You entered wrong password. <a href='/login'> Try Again</a></h1>"
+                        // );
                     }
                 });
         } else {
             res.redirect("/register");
         }
     });
-
-    // First check by the email if the user exists in your Database
-    // If he/she exists then compare if the password matches
-    // Go to the Signatures Table to see if this user already signed
-    // If the user has signed already redirect to Thanks Page
-    // Otherwise redirect to Signature Page
 });
 
 app.get("/petition", (req, res) => {
+    // need cookie signed true
     res.render("petition", {
-        //whatever you specify here,
-        // it will be used as a body in the main.handlebars!
-        // (i.e. home.handlebars)
         layout: "main",
-        // projects: projectsList,
-        // showImage: true,
+
         helpers: {
             drawCanvasScript: "canvasDraw.js",
             formStyles: "petitionStyles.css",
@@ -144,23 +132,31 @@ app.get("/petition", (req, res) => {
 });
 
 app.post("/petition", (req, res) => {
-    // console.log(req.body);
-    //user_id & signed true or false is accessed globally from the set cookies
     const user_id = req.session.user_id;
     const { signature } = req.body;
-
     db.addSignature(signature, user_id)
         .then(() => {
             req.session.signed = true;
-            // console.log("Booleab Signed?: ", req.session.signed);
             res.redirect("/thanks");
         })
         .catch((err) => console.log("err in addSignature: ", err));
 });
 
-app.get("/signers", (req, res) => {
-    // should also render the user with his signature (maybe also print certificate?)
+app.get("/thanks", (req, res) => {
+    const user_id = req.session.user_id;
+    console.log("user_id: ", user_id);
+    db.getSigImg(user_id).then(({ rows }) => {
+        res.render("thanks", {
+            layout: "main",
+            sigArray: rows,
+            helpers: {
+                favicon: "favicon.ico",
+            },
+        });
+    });
+});
 
+app.get("/signers", (req, res) => {
     db.getUserDataAll().then(({ rows }) => {
         res.render("signers", {
             layout: "main",
@@ -188,21 +184,6 @@ app.get("/signers/:signerCity", (req, res) => {
     );
 });
 
-app.get("/thanks", (req, res) => {
-    // should also render the user with his signature (maybe also print certificate?)
-    const user_id = req.session.user_id;
-    console.log("user_id: ", user_id);
-    db.getSigImg(user_id).then(({ rows }) => {
-        res.render("thanks", {
-            layout: "main",
-            sigArray: rows,
-            helpers: {
-                favicon: "favicon.ico",
-            },
-        });
-    });
-});
-
 app.get("/edit", (req, res) => {
     // should also render the user with his signature (maybe also print certificate?)
     db.getUserByID(req.session.user_id).then(({ rows }) => {
@@ -228,6 +209,18 @@ app.post("/edit", (req, res) => {
     db.editProfile(age, city, homepage, id).then(({ rows }) => {
         // console.log("rows", req.session.user_id);
         res.redirect("/edit");
+    });
+});
+
+app.post("/thanks", (req, res) => {
+    const user_id = req.session.user_id;
+
+    db.deleteTable_signatures(user_id);
+    db.deleteTable_user_profiles(user_id);
+    db.deleteTable_users(user_id).then(() => {
+        req.session.user_id = undefined; // clear cookie
+        res.send("<h1>All data deleted as requested</h1>");
+        console.log("done", req.session.user_id);
     });
 });
 

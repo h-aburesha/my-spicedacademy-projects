@@ -14,7 +14,7 @@ module.exports.getSigImg = (user_id) => {
 
 module.exports.getEmailandPassword = (loginEmail) => {
     return db.query(
-        `SELECT email, password, signature FROM users FULL OUTER JOIN signatures ON users.id = signatures.user_id WHERE email = $1 `,
+        `SELECT users.id, email, password, signature FROM users FULL OUTER JOIN signatures ON users.id = signatures.user_id WHERE email = $1 `,
         [loginEmail]
     );
 };
@@ -90,5 +90,32 @@ module.exports.addSignature = (signature, user_id) => {
         `INSERT INTO signatures (signature, user_id) 
       VALUES ($1, $2)`,
         [signature, user_id]
+    );
+};
+
+module.exports.deleteTable_user_profiles = (user_id) => {
+    return db.query(
+        `
+        DELETE FROM user_profiles WHERE user_id = $1;
+        `,
+        [user_id]
+    );
+};
+
+module.exports.deleteTable_signatures = (user_id) => {
+    return db.query(
+        `
+        DELETE FROM signatures WHERE user_id = $1;
+        `,
+        [user_id]
+    );
+};
+
+module.exports.deleteTable_users = (user_id) => {
+    return db.query(
+        `
+        DELETE FROM users WHERE id = $1;
+        `,
+        [user_id]
     );
 };
