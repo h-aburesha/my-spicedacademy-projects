@@ -106,10 +106,9 @@ app.post("/login", (req, res) => {
                     if (passedTest) {
                         res.redirect("/petition");
                     } else {
-                        res.send({ messa });
-                        // res.send(
-                        //     "<h1>You entered wrong password. <a href='/login'> Try Again</a></h1>"
-                        // );
+                        res.send(
+                            "<h1>You entered wrong password. <a href='/login'> Try Again</a></h1>"
+                        );
                     }
                 });
         } else {
